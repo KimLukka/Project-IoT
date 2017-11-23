@@ -1,0 +1,89 @@
+<?php require_once("protector.php"); ?>
+<!DOCTYPE html>
+
+<html lang="fi">
+<head>
+<link href="StyleSheet.css" rel="stylesheet"
+
+type="text/css">
+<meta charset="utf-8" />
+<title>sivu</title>
+<style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 700px;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+<iframe width="0" height="0" border="0" name="turhaframe" id="turhaframe"></ifr$
+        <div class="olkapaa"></div>
+        <div class="paa">
+<form action= "insert.php" method = "post" target="turhaframe">
+  <select name = "haika">
+  <option value="0">Valitse laitteen her‰tysaika</option>
+  <option value="1">1 minuutin v‰lein</option>
+  <option value="2">5 minuutin v‰lein</option>
+  <option value="3">10 minuutin v‰lein</option>
+  <option value="4">15 minuutin v‰lein</option>
+  <option value="5">30 minuutin v‰lein</option>
+  <option value="6">45 minuutin v‰lein</option>
+</select>
+  <select name = "myrkky">
+  <option value="0">Valitse laitetaanko myrkyt p‰‰lle</option>
+  <option value="1">Ei</option>
+  <option value="2">Kyll‰</option>
+</select>
+<input type="submit">
+</form>
+         </div>
+
+        <div class="peppu"> <table>
+<tr>
+<th>Havainnot</th>
+</tr>
+<?php
+$servername = "localhost";
+$username = "esp8266";
+$password = "projekti2017";
+$dbname = "esp8266";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password,
+
+$dbname);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+$sql = "SELECT viesti FROM testi";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        echo"<tr>";
+        echo "<td>" . $row["viesti"]. " </td>";
+        echo"</tr>";
+    }
+} else
+{
+    echo "0 results";
+}
+$conn->close();
+?>
+ </div>
+</body>
+</html>
+
+

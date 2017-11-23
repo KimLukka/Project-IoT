@@ -1,0 +1,38 @@
+body{
+	background-color: #fff;
+}
+
+.ylaosa {
+	width: 700px;
+	height: 150px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	background-color: #808080;
+	
+}
+.keski {
+	width: 700px;
+	height: 500px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	background-color: #fff;
+	overflow: auto;
+}
+.dropmenu{
+	width: 700px;
+	margin-top: 20px; 
+	margin-left: auto;
+	margin-right: auto;
+
+}
+.alaosa {
+	width: 700px;
+	height: 150px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	background-color: #fff;
+	overflow: auto;
+}
