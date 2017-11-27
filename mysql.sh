@@ -1,15 +1,21 @@
 #!/bin/bash
 
-mosquitto_sub -h m14.cloudmqtt.com -u fbaeyadu -P 8IEoPV8J5yDI -p 17353 -t 'esp/test' | while re$
+filename1=/home/projekti/bin/mqtt.txt
+server=$(cat $filename1 | cut -f1 -d" ")
+user1=$(cat $filename1 | cut -f 2 -d" ")
+password1=$(cat $filename1 | cut -f 3 -d" ")
+port=$(cat $filename1 | cut -f 4 -d" ")
+
+mosquitto_sub -h $server -u $user1 -P $password1 -p $port -t 'esp/test' | while read RAW_DATA
 do
 NIMI=$(echo $RAW_DATA | cut -f1 -d" ")
 VIESTI=$(echo $RAW_DATA | cut -f 2 -d" ")
 
-filename=/home/projekti/bin/user_password.txt
-user=$(cat $filename | cut -f1 -d" ")
-password=$(cat $filename | cut -f 2 -d" ")
+filename2=/home/projekti/bin/user_password.txt
+user2=$(cat $filename2 | cut -f1 -d" ")
+password2=$(cat $filename2 | cut -f 2 -d" ")
 
-mysql -u $user -p$password <<TESTI
+mysql -u $user2 -p$password2 <<TESTI
 USE esp8266
 INSERT INTO esps (mode, action) VALUES ("$NIMI", "$VIESTI")
 
