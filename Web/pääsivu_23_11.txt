@@ -32,18 +32,18 @@ tr:nth-child(even) {
         <div class="paa">
 <form action= "insert.php" method = "post" target="turhaframe">
   <select name = "haika">
-  <option value="0">Valitse laitteen herätysaika</option>
-  <option value="1">1 minuutin välein</option>
-  <option value="2">5 minuutin välein</option>
-  <option value="3">10 minuutin välein</option>
-  <option value="4">15 minuutin välein</option>
-  <option value="5">30 minuutin välein</option>
-  <option value="6">45 minuutin välein</option>
+  <option value="0">Valitse laitteen herÃ¤tysaika</option>
+  <option value="1">1 minuutin vÃ¤lein</option>
+  <option value="2">5 minuutin vÃ¤lein</option>
+  <option value="3">10 minuutin vÃ¤lein</option>
+  <option value="4">15 minuutin vÃ¤lein</option>
+  <option value="5">30 minuutin vÃ¤lein</option>
+  <option value="6">45 minuutin vÃ¤lein</option>
 </select>
   <select name = "myrkky">
-  <option value="0">Valitse laitetaanko myrkyt päälle</option>
+  <option value="0">Valitse laitetaanko myrkyt pÃ¤Ã¤lle</option>
   <option value="1">Ei</option>
-  <option value="2">Kyllä</option>
+  <option value="2">KyllÃ¤</option>
 </select>
 <input type="submit">
 </form>
