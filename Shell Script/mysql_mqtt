@@ -1,10 +1,21 @@
-#!/bin/bash
+#!/bin/bash -x
 
 #Connect to the database and select latest message from table
 filename1=/home/projekti/bin/user_password.txt
 user1=$(cat $filename1 | cut -f1 -d" ")
 password1=$(cat $filename1 | cut -f 2 -d" ")
 
-msg=$(mysql -u$user1 -p$password1 esp8266 -se "SELECT * FROM esps ORDER BY id DESC LIMIT 1"
+msg=$(mysql -u$user1 -p$password1 esp8266 -se "SELECT * FROM esps ORDER BY id DESC LIMIT 1")
 msg1=$(echo $msg | cut -f 2,3,4 -d" ")
-echo $msg1;
+
+#echo $msg1;
+
+#Get MQTT broker info from text file into variables.
+filename2=/home/projekti/bin/mqtt.txt
+server=$(cat $filename2 | cut -f1 -d" ")
+user1=$(cat $filename2 | cut -f 2 -d" ")
+password1=$(cat $filename2 | cut -f 3 -d" ")
+port=$(cat $filename2 | cut -f 4 -d" ")
+
+#Using Mosquitto client to publish the message from the database to the topic
+mosquitto_pub -h $server -u $user1 -P $password1 -p $port -t 'esp/test' -m "$msg1"
