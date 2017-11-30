@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#Connect to the database and select latest message from table
+filename1=/home/projekti/bin/user_password.txt
+user1=$(cat $filename1 | cut -f1 -d" ")
+password1=$(cat $filename1 | cut -f 2 -d" ")
+
+msg=$(mysql -u$user1 -p$password1 esp8266 -se "SELECT * FROM esps ORDER BY id D$
+msg1=$(echo $msg | cut -f 2,3,4 -d" ")
+echo $msg1;
