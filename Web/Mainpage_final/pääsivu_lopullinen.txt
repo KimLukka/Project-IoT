@@ -1,0 +1,120 @@
+
+<?php require_once("protector.php"); ?>
+<!DOCTYPE html>
+
+<html lang="fi">
+<head>
+<link href="StyleSheet2.css" rel="stylesheet"
+
+type="text/css">
+<meta charset="utf-8" />
+<title>Projekti</title>
+<style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 720px;
+}
+
+td, th {
+    border: 0;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+</head>
+<body onload="changeImg('https://www.drownrat.com/wp-content/uploads/2017/03/rat_logo.png')">
+<iframe width="0" height="0" border="0" name="turhaframe" id="turhaframe">
+</iframe>
+<div class="olkapaa">
+<script type="text/javascript">
+function changeImg(image){
+  var imghol = document.getElementById("imageHolder");
+  imghol.src = image;
+}
+</script>
+<img id="imageHolder" height="390" width="690" />
+</div>
+        <div class="paa">
+<form action= "insert.php" method = "post" target="turhaframe">
+  <select name = "haika">
+  <option value="0">Valitse laitteen her‰tysaika</option>
+  <option value="1">1 minuutin v‰lein</option>
+  <option value="2">5 minuutin v‰lein</option>
+  <option value="3">10 minuutin v‰lein</option>
+  <option value="4">15 minuutin v‰lein</option>
+  <option value="5">30 minuutin v‰lein</option>
+  <option value="6">45 minuutin v‰lein</option>
+</select>
+  <select name = "myrkky">
+  <option value="0">Valitse laitetaanko myrkyt p‰‰lle</option>
+  <option value="1">Ei</option>
+  <option value="2">Kyll‰</option>
+</select>
+<input type="submit" value="L‰het‰" onclick="return foo();" />
+<script>
+function foo()
+{
+   alert("Tiedot l‰hetetty!");
+   return true;
+}
+</script>
+</form>
+</div>
+<div class="peppu"> <table>
+<tr>
+<th>Havainnot</th>
+<th>Kuva</th>
+</tr>
+<?php
+$servername = "localhost";
+$username = "esp8266";
+$password = "projekti2017";
+$dbname = "esp8266";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$sql = "SELECT timestamp FROM esps order by id desc limit 1";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+$aiiiika = $row["timestamp"];
+echo "<tr><td>Hereill‰ viimeksi</td>";
+echo "<td>$aiiiika</td>";
+echo "</tr>";
+}
+}
+$sql = "SELECT aika, osoite FROM havainto order by id desc";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        echo"<tr>";
+        echo "<td>" . $row["aika"]. " </td>";
+        echo "<td>";
+        $asd = $row["osoite"];
+?>
+         <a id="FS" href="javascript:" onclick="changeImg('<?php echo $asd; ?>');"">Kuva</a>
+<?php
+        echo "<td>";
+        echo "</tr>";
+    }
+} else
+{
+    echo "0 results";
+}
+$conn->close();
+?>
+ </div>
+</body>
+</html>
