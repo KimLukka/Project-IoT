@@ -1,0 +1,229 @@
+
+
+
+#include <Adafruit_VC0706.h> // kameran kirjato
+#include <SPI.h>
+#include <SD.h>
+
+#include <LowPower.h> // sleep moden kirjasto
+int varmenne = 6324 ;
+
+int inputPin = 6;               
+int pirState = LOW;             
+int val = 0;                    
+int wakePin = 4;
+int calibrationTime = 1;
+int counter = 0;
+const int wakeUpPin = 6;
+
+
+
+#include <SoftwareSerial.h>         
+
+       
+
+//sd kortin cs pinnin paikka
+#define chipSelect 10
+
+
+#if ARDUINO >= 100
+// software serial pinnit tx:älle ja rx:äksälle
+SoftwareSerial cameraconnection = SoftwareSerial(2, 3);
+
+#else
+NewSoftSerial cameraconnection = NewSoftSerial(2, 3);
+#endif
+
+Adafruit_VC0706 cam = Adafruit_VC0706(&cameraconnection);
+
+
+
+void setup() {
+
+
+  pinMode(10, HIGH);
+  pinMode(11, HIGH);
+  pinMode(12, HIGH);
+  pinMode(13, HIGH);
+  pinMode(5, LOW);
+  pinMode(wakeUpPin, INPUT);   
+  
+  pinMode(inputPin, INPUT);     // sensorin inputpinni
+  pinMode(wakePin, OUTPUT);
+  // When using hardware SPI, the SS pin MUST be set to an
+  // output (even if not connected or used).  If left as a
+  // floating input w/SPI on, this can cause lockuppage.
+#if !defined(SOFTWARE_SPI)
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+  if(chipSelect != 53) pinMode(53, OUTPUT); // SS on Mega
+#else
+  if(chipSelect != 10) pinMode(10, OUTPUT); // SS on Uno, etc.
+#endif
+#endif
+
+  Serial.begin(9600);
+  
+  Serial.println("VC0706 Camera snapshot test");
+  
+  // sd kortin toiminnan varmenne
+  if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present");
+    
+    return;
+  }  
+
+  Serial.print("Calibrating sensor");
+    for(int i = 0; i < calibrationTime; i++){
+      Serial.print(".");
+      if(i == calibrationTime - 1){
+        Serial.println(" ");
+      }
+      delay(1000);
+      }
+  Serial.println("Calibration done");
+  
+  // kameran toiminnan varmennus
+  if (cam.begin()) {
+    Serial.println("Camera Found:");
+  } else {
+    Serial.println("No camera found?");
+    return;
+  }
+  // Print out the camera version information (optional)
+  char *reply = cam.getVersion();
+  if (reply == 0) {
+    Serial.print("Failed to get version");
+  } else {
+    Serial.println("-----------------");
+    Serial.print(reply);
+    Serial.println("-----------------");
+  }
+
+  // kameran resoluution muuttaminen (ei toimi)
+  
+  cam.setImageSize(VC0706_640x480);        // biggest
+  //cam.setImageSize(VC0706_320x240);        // medium
+  //cam.setImageSize(VC0706_160x120);          // small
+
+
+  
+}
+
+
+
+
+void loop() {
+
+  
+  val = digitalRead(inputPin);  // lukee input arvon pirrin pinniltä
+  if (val == HIGH) {            
+
+
+
+    if (pirState == LOW) {
+      
+      Serial.println("Motion detected!");
+      //pistetään sd kortin pinnit takaisin päälle
+      pinMode(10, HIGH);
+      pinMode(11, HIGH);// pistetään pinnit takaisin päälle
+      pinMode(12, HIGH);
+      pinMode(13, HIGH);
+
+       Serial.println("Snap now");
+
+
+  if (! cam.takePicture()) // kuvan otto
+    Serial.println("Failed to snap!");
+  else 
+    Serial.println("Picture taken!");
+  
+  // tekee IMAGExx.JPG nimisen kuvan
+  char filename[13];
+  strcpy(filename, "IMAGE00.JPG");
+  for (int i = 0; i < 100; i++) {
+    filename[5] = '0' + i/10;
+    filename[6] = '0' + i%10;
+    // jos kuva on jo olemassa se poistetaan ja korvataan uudella
+    if ( SD.exists(filename)) {
+      SD.remove("IMAGE00.JPG");
+    }
+    if (! SD.exists(filename)) {
+      break;
+    }
+  }
+  
+  // avaa tiedoston kuvan kirjoitusta varten
+  File imgFile = SD.open(filename, FILE_WRITE);
+
+  // hakee kuvan koon (frameja otettu)  
+  uint16_t jpglen = cam.frameLength();
+  Serial.print("Storing ");
+  Serial.print(jpglen, DEC);
+  Serial.print(" byte image.");
+
+  int32_t time = millis();
+  pinMode(8, OUTPUT);
+  // lukee dataa kunnes kaikki on käyty läpi
+  byte wCount = 0; // kirjoitusten luku kertoja varten
+  while (jpglen > 0) {
+    // lukee 32 bittiä kerrallaan 
+    uint8_t *buffer;
+    uint8_t bytesToRead = min(64, jpglen); // change 32 to 64 for a speedup but may not work with all setups!
+    buffer = cam.readPicture(bytesToRead);
+    imgFile.write(buffer, bytesToRead);
+    if(++wCount >= 64) { // Every 2K, give a little feedback so it doesn't appear locked up
+      Serial.print('.');
+      wCount = 0;
+    }
+    //Serial.print("Read ");  Serial.print(bytesToRead, DEC); Serial.println(" bytes");
+    jpglen -= bytesToRead;
+  }
+  imgFile.close();
+
+  time = millis() - time;
+  Serial.println("done!");
+  Serial.print(time); Serial.println(" ms elapsed");
+  pinMode(10, LOW);
+  pinMode(11, LOW);
+  pinMode(12, LOW);
+  pinMode(13, LOW);
+   
+      // We only want to print on the output change, not state
+      pirState = HIGH;
+      digitalWrite(wakePin, LOW);
+      Serial.println("wakePin LOW");
+      delay(500);
+      digitalWrite(wakePin, HIGH);
+      Serial.println("wakePin HIGH");
+
+      //pinMode(5, HIGH);
+
+      
+  
+         
+      
+      //Give Huzzah 40 seconds to do its thing
+      Serial.println("Staying in HIGH mode for 40 seconds");
+      for(int i = 0; i < 10; i++){
+        val = HIGH;
+        delay(1000);
+      }
+      Serial.println("HIGH mode off");
+      
+
+     ;
+     
+      
+    }
+  }  
+    
+   if (pirState == HIGH){
+      // we have just turned of
+      Serial.println("Motion ended!");
+      
+      // We only want to print on the output change, not state
+      pirState = LOW;
+    } 
+   
+    }
+
